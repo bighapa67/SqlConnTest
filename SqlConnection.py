@@ -8,15 +8,15 @@ from sqlalchemy.orm import sessionmaker
 
 # environment variables
 load_dotenv()
-os.environ['MSSQL_DB'] = 'StockOddsDB'
+os.environ['MSSQL_DB'] = 'StockOdds_Dev'
 os.environ['MSSQL_TABLE'] = 'TestTable'
 
 # database connection parameters
-database = 'StockOddsDB'
+database = 'StockOdds_Dev'
 db_table = 'TestTable'
 server = r'FRANKENSTEIN\SQLEXPRESS'
 
-params = urllib.parse.quote_plus('DRIVER={ODBC Driver 13 for Sql Server};SERVER='+server+';DATABASE='
+params = urllib.parse.quote_plus('DRIVER={ODBC Driver 17 for Sql Server};SERVER='+server+';DATABASE='
                                     +database+";Trusted_Connection=yes;")
 
 # if using Sql Authentication (UID, PSWD)
@@ -24,7 +24,8 @@ params = urllib.parse.quote_plus('DRIVER={ODBC Driver 13 for Sql Server};SERVER=
 #                                  ';DATABASE='+db+';UID='+username+';PWD='+password)
 
 # create the sqlalchemy engine for efficient reading/writing to Sql Server
-engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+# engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, fast_executemany=True)
 
 # sqlalchemy uses 'sessions' to execute sql statements (as a "holding zone")
 # requires 'from sqlalchemy.orm import sessionmaker'
@@ -42,8 +43,8 @@ def read_from_sql_server():
 
 # write data to the db
 def write_to_sql_server():
-    data = {'Symbol': ['AAPL', 'FB', 'NVDA'], 'ExDivDate': ['2020-01-01', '2020-02-01', '2020-03-01'],
-            'DivAmt': ['.1234', '.2345', '.3456']}
+    data = {'Symbol': ['AAPL', 'FB', 'NVDA'], 'xDivDate': ['2020-01-01', '2020-02-01', '2020-03-01'],
+            'DivAmt': ['.1234', '.2345', '.3456'], 'AnnDate': ['2019-01-01', '2019-02-01', '2019-03-01']}
 
     df = pd.DataFrame(data)
     df.to_sql(db_table, con=engine, if_exists='append', index=False)
